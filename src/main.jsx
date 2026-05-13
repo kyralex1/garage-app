@@ -10,10 +10,44 @@ import './index.css';
 const FONT = '"Geist", "Söhne", -apple-system, system-ui, sans-serif';
 const MONO = '"JetBrains Mono", "IBM Plex Mono", ui-monospace, monospace';
 
-function Root() {
+// Capacitor injects `window.Capacitor`. Use that to render fullscreen on device,
+// vs. the dual-frame preview in the browser.
+const isNative = typeof window !== 'undefined' && (
+  !!window.Capacitor?.isNativePlatform?.() ||
+  /capacitor|android|ios/i.test(window.location?.protocol || '') ||
+  window.location?.protocol === 'file:'
+);
+
+function NativeRoot() {
   const [accent, setAccent] = React.useState('#00e5ff');
   const [doorSpeed, setDoorSpeed] = React.useState(2.2);
-  const [replayKey, setReplayKey] = React.useState(0);
+
+  React.useEffect(() => {
+    document.documentElement.style.setProperty('--accent', accent);
+  }, [accent]);
+
+  return (
+    <StoreProvider>
+      <div style={{
+        position: 'fixed', inset: 0, background: '#0a0b0d',
+        paddingTop: 'env(safe-area-inset-top)',
+        paddingBottom: 'env(safe-area-inset-bottom)',
+      }}>
+        <App accent={accent} doorSpeed={doorSpeed}/>
+      </div>
+      <GarageTweaks
+        onAccentChange={setAccent}
+        onDoorSpeedChange={setDoorSpeed}
+        onReplayDoor={() => window.dispatchEvent(new CustomEvent('garage:replay-door'))}
+        onReset={() => { try { localStorage.removeItem('garage_app_v4'); } catch (e) {} window.location.reload(); }}
+      />
+    </StoreProvider>
+  );
+}
+
+function PreviewRoot() {
+  const [accent, setAccent] = React.useState('#00e5ff');
+  const [doorSpeed, setDoorSpeed] = React.useState(2.2);
 
   const handleReplayDoor = () => {
     window.dispatchEvent(new CustomEvent('garage:replay-door'));
@@ -41,7 +75,6 @@ function Root() {
           display: 'flex', flexDirection: 'column', alignItems: 'center',
           padding: '32px 20px 64px', gap: 24,
         }}>
-          {/* Header */}
           <header style={{
             display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between',
             width: '100%', maxWidth: 1100, gap: 16,
@@ -71,7 +104,6 @@ function Root() {
             </div>
           </header>
 
-          {/* Frames */}
           <div style={{
             display: 'flex', gap: 28, alignItems: 'flex-start',
             padding: 8, flexWrap: 'wrap', justifyContent: 'center',
@@ -109,4 +141,6 @@ function Root() {
   );
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(<Root/>);
+ReactDOM.createRoot(document.getElementById('root')).render(
+  isNative ? <NativeRoot/> : <PreviewRoot/>
+);

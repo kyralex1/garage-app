@@ -1,27 +1,31 @@
 import React from 'react';
+import bmwImg from './assets/vehicles/bmw.png';
+import r1Img from './assets/vehicles/r1.png';
+import mt09Img from './assets/vehicles/mt09.png';
+import cb650rImg from './assets/vehicles/cb650r.png';
 
 const STORE_KEY = 'garage_app_v4';
 const MAX_PER_TYPE = 10;
 
 export const PRESETS = {
   bmw_e30: {
-    label: 'BMW · 3er (E-Series)', type: 'car', img: '/assets/vehicles/bmw.png',
+    label: 'BMW · 3er (E-Series)', type: 'car', img: bmwImg,
     name: 'BMW', model: '3er Coupé', mileagePerYear: 12000,
   },
   bmw_g20: {
-    label: 'BMW · 3er M340i', type: 'car', img: '/assets/vehicles/bmw.png',
+    label: 'BMW · 3er M340i', type: 'car', img: bmwImg,
     name: 'BMW', model: 'M340i xDrive', mileagePerYear: 18000,
   },
   r1: {
-    label: 'Yamaha · R1', type: 'bike', img: '/assets/vehicles/r1.png',
+    label: 'Yamaha · R1', type: 'bike', img: r1Img,
     name: 'R1', model: 'Supersport · 998 cc', mileagePerYear: 3500,
   },
   mt09: {
-    label: 'Yamaha · MT-09', type: 'bike', img: '/assets/vehicles/mt09.png',
+    label: 'Yamaha · MT-09', type: 'bike', img: mt09Img,
     name: 'MT-09', model: 'Hyper Naked · 890 cc', mileagePerYear: 7500,
   },
   cb650r: {
-    label: 'Honda · CB650R', type: 'bike', img: '/assets/vehicles/cb650r.png',
+    label: 'Honda · CB650R', type: 'bike', img: cb650rImg,
     name: 'CB650R', model: 'Naked · 649 cc', mileagePerYear: 9000,
   },
   generic_car: {

@@ -1,0 +1,8 @@
+{
+  "appId": "com.kyralex1.garage",
+  "appName": "Garage",
+  "webDir": "dist",
+  "android": {
+    "allowMixedContent": false
+  }
+}

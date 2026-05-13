@@ -1,0 +1,92 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build web bundle
+        run: npm run build
+
+      - name: Add Capacitor Android platform
+        run: |
+          if [ ! -d android ]; then
+            npx cap add android
+          fi
+          npx cap sync android
+
+      - name: Patch package name (matches capacitor.config.json)
+        run: |
+          ls -la android/app/
+
+      - name: Build debug APK
+        working-directory: android
+        run: |
+          chmod +x ./gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee gradle.log
+
+      - name: Locate APK
+        id: apk
+        run: |
+          APK=$(find android/app/build/outputs/apk/debug -name "*.apk" | head -n1)
+          echo "Found APK: $APK"
+          echo "path=$APK" >> "$GITHUB_OUTPUT"
+
+      - name: Upload APK artifact
+        if: success() && steps.apk.outputs.path != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: garage-apk
+          path: ${{ steps.apk.outputs.path }}
+          retention-days: 14
+
+      - name: Tail gradle log on failure
+        if: failure()
+        run: |
+          echo "===== gradle.log (tail) ====="
+          tail -n 200 android/gradle.log || true
+          mkdir -p /tmp/logs
+          tail -n 500 android/gradle.log > /tmp/logs/build-apk-tail.log || true
+
+      - name: Push failure log to ci-logs branch
+        if: failure()
+        run: |
+          if [ ! -f /tmp/logs/build-apk-tail.log ]; then exit 0; fi
+          git config --global user.email "ci@github.local"
+          git config --global user.name "ci"
+          REPO_TMP=$(mktemp -d)
+          git clone --depth 1 "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" "$REPO_TMP"
+          cd "$REPO_TMP"
+          git checkout -B ci-logs
+          rm -rf .
+          cp /tmp/logs/build-apk-tail.log ./build-apk-tail.log
+          git add -A
+          git commit -m "ci: build log for run ${{ github.run_id }}" || true
+          git push -f origin ci-logs || true
