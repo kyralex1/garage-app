@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Garage — Hi-Fi Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --accent: #00e5ff;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #050608;
+    color: #ebecef;
+    font-family: 'Geist', 'Söhne', -apple-system, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  body {
+    background:
+      radial-gradient(1200px 600px at 50% -200px, rgba(0,229,255,0.04) 0%, transparent 70%),
+      repeating-linear-gradient(0deg, transparent 0 39px, rgba(255,255,255,0.012) 39px 40px),
+      repeating-linear-gradient(90deg, transparent 0 39px, rgba(255,255,255,0.012) 39px 40px),
+      #050608;
+    overflow-x: auto;
+  }
+
+  .stage {
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 32px 20px 64px;
+    gap: 24px;
+  }
+  .stage-head {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    width: 100%; max-width: 1100px; gap: 16px;
+  }
+  .stage-title {
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .stage-eyebrow {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+    color: #6b6d75;
+  }
+  .stage-h1 {
+    font-size: 28px; font-weight: 600; letter-spacing: -0.5px; color: #ebecef;
+    margin: 0;
+  }
+  .stage-sub {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 12px; color: #8b8d96; max-width: 600px; line-height: 1.5;
+  }
+  .stage-meta {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 10px; letter-spacing: 1.5px; color: #5a5c64;
+    text-align: right; line-height: 1.6;
+  }
+  .stage-meta b { color: var(--accent); font-weight: 500; letter-spacing: 1px; }
+
+  .frames {
+    display: flex; gap: 28px; align-items: flex-start;
+    padding: 8px;
+  }
+  .frame-wrap {
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+  }
+  .frame-label {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+    color: #5a5c64;
+  }
+
+  /* Inputs in dark panels — match accent on focus */
+  input::placeholder { color: rgba(255,255,255,0.25); }
+  input:focus { outline: none; }
+
+  /* Buttons reset visited-style outline on Safari */
+  button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* Hide scrollbars inside frames for cleaner look */
+  .frame-wrap *::-webkit-scrollbar { width: 4px; height: 4px; }
+  .frame-wrap *::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+  .frame-wrap *::-webkit-scrollbar-track { background: transparent; }
+
+  /* On narrow viewports — stack frames vertically */
+  @media (max-width: 920px) {
+    .frames { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <header class="stage-head">
+    <div class="stage-title">
+      <span class="stage-eyebrow">Hi-Fi Prototype · v1</span>
+      <h1 class="stage-h1">Garagen-App</h1>
+      <span class="stage-sub">
+        Tippe auf den Tor-Knopf zum Öffnen. Innen: deine Fahrzeuge und alle anstehenden Wartungen / HU.
+        State läuft synchron zwischen iOS und Android.
+      </span>
+    </div>
+    <div class="stage-meta">
+      <b>Tweaks ein</b><br/>
+      Akzent · Tor · Demo
+    </div>
+  </header>
+
+  <div class="frames">
+    <div class="frame-wrap">
+      <div id="ios-mount"></div>
+      <div class="frame-label">iOS · iPhone 15 Pro</div>
+    </div>
+    <div class="frame-wrap">
+      <div id="android-mount"></div>
+      <div class="frame-label">Android · Pixel 8</div>
+    </div>
+  </div>
+</div>
+
+<div id="tweaks-mount"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="ios-frame.jsx"></script>
+<script type="text/babel" src="android-frame.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="app/store.jsx"></script>
+<script type="text/babel" src="app/art.jsx"></script>
+<script type="text/babel" src="app/screens-main.jsx"></script>
+<script type="text/babel" src="app/screens-detail.jsx"></script>
+<script type="text/babel" src="app/app.jsx"></script>
+
+<script type="text/babel" data-presets="env,react">
+  // Wait for all babel scripts to mount before rendering. We poll for App.
+  function whenReady(cb) {
+    if (window.App && window.GarageTweaks && window.IOSDevice && window.AndroidDevice && window.StoreProvider) cb();
+    else setTimeout(() => whenReady(cb), 30);
+  }
+
+  whenReady(() => {
+    // Mount iOS
+    function IOSWrapper() {
+      return (
+        <IOSDevice width={384} height={812} dark={true}>
+          <App instanceId="ios" frame="iOS" safeTop={54}/>
+        </IOSDevice>
+      );
+    }
+    function AndroidWrapper() {
+      return (
+        <AndroidDevice width={384} height={812} dark={true}>
+          <App instanceId="android" frame="Android"/>
+        </AndroidDevice>
+      );
+    }
+
+    // Both apps share state via the same StoreProvider, mounted at the page root
+    function Root() {
+      return (
+        <StoreProvider>
+          <div style={{ display: 'contents' }}>
+            <IOSPortal/>
+            <AndroidPortal/>
+          </div>
+        </StoreProvider>
+      );
+    }
+
+    function IOSPortal() {
+      return ReactDOM.createPortal(<IOSWrapper/>, document.getElementById('ios-mount'));
+    }
+    function AndroidPortal() {
+      return ReactDOM.createPortal(<AndroidWrapper/>, document.getElementById('android-mount'));
+    }
+
+    // Use a single host div for the StoreProvider so both portals share state
+    const host = document.createElement('div');
+    document.body.appendChild(host);
+    ReactDOM.createRoot(host).render(<Root/>);
+
+    // Tweaks panel
+    ReactDOM.createRoot(document.getElementById('tweaks-mount')).render(<GarageTweaks/>);
+  });
+</script>
+
+</body>
+</html>
